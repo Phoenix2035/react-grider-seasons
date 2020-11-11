@@ -1,17 +1,31 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import SeasonDisplay from "./SeasonDisplay";
+import Loading from "./Loading";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+const App = () => {
+    const [location, setLocation] = useState({latitude: null})
+    const [errorMessage, setErrorMessage] = useState('')
+
+    useEffect(() => {
+        window.navigator.geolocation.getCurrentPosition(
+            position => setLocation({latitude: position.coords.latitude}),
+            err => setErrorMessage(err.message)
+        )
+    }, [])
+
+
+    if (!errorMessage && location.latitude) {
+        return <SeasonDisplay lat={location.latitude}/>
+    }
+
+    if (errorMessage && !location.latitude) {
+        return <div>Error: {errorMessage}</div>
+    }
+
+    return <Loading message={'Please accept location request'}/>
+}
+ReactDOM.render(<App/>, document.getElementById('root'));
+
+
